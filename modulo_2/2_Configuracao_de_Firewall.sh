@@ -91,7 +91,7 @@ EOF
 sudo iptables-restore < /etc/iptables/rules.v4
 
 # Script de monitoramento do firewall
-cat > ~/security-labl/scripts/firewaçç-monitor.sh << 'EOF'
+cat > ~/security-labl/scripts/firewall-monitor.sh << 'EOF'
 #!/bin/bash
 # firewall-monitor.sh
 
