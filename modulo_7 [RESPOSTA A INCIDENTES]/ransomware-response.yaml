@@ -1,0 +1,200 @@
+# modulo7/playbooks/ransomware-response.yaml
+---
+playbook_id: PB-RANSOMWARE-001
+versao: "2.0"
+data_criacao: "2024-01-15"
+autor: "CSIRT Team"
+
+descricao: |
+  Playbook para resposta a incidentes de ransomware.
+  Inclui contenção, erradicação e recuperação.
+
+gatilhos:
+  - "Arquivos com extensão .locked, .encrypted, .crypt"
+  - "Nota de resgate em arquivos README.txt, HELP.txt"
+  - "Comunicação com C2 conhecidos de ransomware"
+  - "Aumento súbito de atividade de criptografia"
+
+classificacao:
+  severidade: "CRITICAL"
+  impacto: "ALTO"
+  urgencia: "ALTO"
+
+equipe_responsavel:
+  - "Líder CSIRT"
+  - "Analista Forense"
+  - "Administrador de Sistemas"
+  - "Suporte Jurídico"
+
+fases_resposta:
+
+  fase_1_preparacao:
+    objetivo: "Preparar equipe e recursos"
+    acoes:
+      - acao: "Ativar equipe de resposta"
+        responsavel: "Líder CSIRT"
+        tempo: "Imediato"
+        instrucoes: |
+          1. Convocar equipe via canal dedicado
+          2. Estabelecer sala de guerra virtual
+          3. Distribuir funções e responsabilidades
+
+      - acao: "Preparar ferramentas"
+        responsavel: "Analista Forense"
+        tempo: "15 minutos"
+        instrucoes: |
+          1. Verificar disponibilidade de ferramentas forenses
+          2. Preparar mídias para coleta de evidências
+          3. Configurar ambiente de análise isolado
+
+  fase_2_identificacao:
+    objetivo: "Confirmar e caracterizar o ataque"
+    acoes:
+      - acao: "Confirmar infecção"
+        responsavel: "Analista SOC"
+        tempo: "30 minutos"
+        instrucoes: |
+          1. Identificar primeiro sistema infectado
+          2. Verificar extensão dos arquivos criptografados
+          3. Localizar nota de resgate
+          4. Coletar amostra do ransomware
+
+      - acao: "Determinar escopo"
+        responsavel: "Analista Forense"
+        tempo: "1 hora"
+        instrucoes: |
+          1. Mapear sistemas afetados
+          2. Identificar vetor inicial de ataque
+          3. Verificar propagação na rede
+          4. Identificar dados críticos afetados
+
+  fase_3_contencao:
+    objetivo: "Isolar e conter a propagação"
+    acoes:
+      - acao: "Isolar sistemas infectados"
+        responsavel: "Admin Rede"
+        tempo: "Imediato"
+        instrucoes: |
+          1. Desconectar VLANs afetadas
+          2. Bloquear portas de switch
+          3. Implementar regras de firewall
+          4. Desabilitar contas comprometidas
+
+      - acao: "Isolar da internet"
+        responsavel: "Admin Rede"
+        tempo: "15 minutos"
+        instrucoes: |
+          1. Bloquear tráfego de saída para IPs suspeitos
+          2. Implementar DNS sinkhole
+          3. Bloquear comunicações C2 conhecidas
+
+      - acao: "Preservar evidências"
+        responsavel: "Analista Forense"
+        tempo: "2 horas"
+        instrucoes: |
+          1. Coletar dump de memória
+          2. Capturar imagens forenses
+          3. Coletar logs relevantes
+          4. Documentar cadeia de custódia
+
+  fase_4_erradicacao:
+    objetivo: "Remover completamente a ameaça"
+    acoes:
+      - acao: "Identificar e remover malware"
+        responsavel: "Analista Forense"
+        tempo: "4 horas"
+        instrucoes: |
+          1. Analisar amostra em sandbox
+          2. Identificar IOCs específicos
+          3. Criar signatures para detecção
+          4. Remover arquivos maliciosos
+
+      - acao: "Eliminar persistência"
+        responsavel: "Admin Sistemas"
+        tempo: "2 horas"
+        instrucoes: |
+          1. Verificar registros de inicialização
+          2. Analisar tarefas agendadas
+          3. Verificar serviços maliciosos
+          4. Limpar registros comprometidos
+
+  fase_5_recuperacao:
+    objetivo: "Restaurar operações normais"
+    acoes:
+      - acao: "Restaurar de backups"
+        responsavel: "Admin Backup"
+        tempo: "Variável"
+        instrucoes: |
+          1. Verificar integridade dos backups
+          2. Restaurar sistemas críticos primeiro
+          3. Validar dados restaurados
+          4. Aplicar patches de segurança
+
+      - acao: "Reconfigurar sistemas"
+        responsavel: "Admin Sistemas"
+        tempo: "8 horas"
+        instrucoes: |
+          1. Redefinir senhas de todas as contas
+          2. Reconfigurar permissões de arquivos
+          3. Implementar controles adicionais
+          4. Atualizar políticas de segurança
+
+  fase_6_licoes_aprendidas:
+    objetivo: "Documentar e melhorar processos"
+    acoes:
+      - acao: "Realizar post-mortem"
+        responsavel: "Líder CSIRT"
+        tempo: "7 dias após incidente"
+        instrucoes: |
+          1. Conduzir reunião de análise
+          2. Identificar gaps nos controles
+          3. Documentar lições aprendidas
+          4. Atualizar playbooks
+
+      - acao: "Implementar melhorias"
+        responsavel: "Gestor Segurança"
+        tempo: "30 dias"
+        instrucoes: |
+          1. Priorizar recomendações
+          2. Implementar controles adicionais
+          3. Treinar equipes
+          4. Atualizar políticas
+
+comunicacao:
+  interna:
+    - momento: "Identificação confirmada"
+      para: "Diretoria, Gerentes"
+      canal: "Reunião emergencial"
+      mensagem: "Incidente de ransomware confirmado. Equipe de resposta ativada."
+
+    - momento: "Cada 2 horas"
+      para: "Comitê de crise"
+      canal: "Relatório de situação"
+      mensagem: "Atualização sobre contenção e recuperação."
+
+    - momento: "Resolução"
+      para: "Todos funcionários"
+      canal: "Email corporativo"
+      mensagem: "Incidente resolvido. Sistemas restaurados."
+
+  externa:
+    - momento: "Se necessário por lei"
+      para: "Autoridades"
+      canal: "Canais oficiais"
+      mensagem: "Notificação formal conforme exigências legais."
+
+ferramentas_recomendadas:
+  - "Autopsy para análise forense"
+  - "Volatility para análise de memória"
+  - "YARA para detecção de malware"
+  - "NoMoreRansom para descriptografia"
+  - "ID Ransomware para identificação"
+
+# checklist_final:
+#   - [] "Todos sistemas infectados contidos"
+#   - [] "Malware completamente removido"
+#   - [] "Backups validados e restaurados"
+#   - [] "Senhas redefinidas"
+#   - [] "Controles adicionais implementados"
+#   - [] "Post-mortem realizado"
+#   - [] "Playbook atualizado"

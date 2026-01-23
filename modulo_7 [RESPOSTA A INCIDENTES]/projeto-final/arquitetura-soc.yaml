@@ -1,0 +1,154 @@
+# modulo7/projeto-final/arquitetura-soc.yaml
+---
+arquitetura_soc:
+  nome: "SOC-Enterprise v2.0"
+  versao: "1.0"
+  data_implementacao: "2024-01-20"
+
+  componentes:
+
+    camada_coleta:
+      - nome: "Agentes de Endpoint"
+        descricao: "Coleta de logs e telemetria de endpoints"
+        tecnologias: ["Wazuh", "Osquery", "Elastic Agent"]
+        capacidade: "10.000 endpoints"
+
+      - nome: "Coleta de Rede"
+        descricao: "Netflow, sFlow, packet capture"
+        tecnologias: ["Zeek", "Suricata", "Arkime"]
+        capacidade: "10 Gbps"
+
+      - nome: "Logs de Aplicação"
+        descricao: "Logs de aplicações, bancos de dados, serviços"
+        tecnologias: ["Fluentd", "Logstash", "Vector"]
+        capacidade: "50.000 EPS"
+
+    camada_armazenamento:
+      - nome: "Data Lake de Segurança"
+        descricao: "Armazenamento de longo prazo de logs"
+        tecnologias: ["Elasticsearch", "S3", "Hadoop"]
+        retencao: "365 dias"
+        capacidade: "100 TB"
+
+      - nome: "Hot Storage"
+        descricao: "Armazenamento para análise em tempo real"
+        tecnologias: ["Elasticsearch Hot Tier", "Redis"]
+        retencao: "30 dias"
+        capacidade: "10 TB"
+
+    camada_analise:
+      - nome: "SIEM"
+        descricao: "Correlação e análise de eventos"
+        tecnologias: ["Elastic SIEM", "Splunk", "Azure Sentinel"]
+        regras: "500+ regras de correlação"
+
+      - nome: "SOAR"
+        descricao: "Automação e orquestração de resposta"
+        tecnologias: ["TheHive", "Cortex", "Shuffle"]
+        playbooks: "100+ playbooks automatizados"
+
+      - nome: "UEBA"
+        descricao: "Análise comportamental de usuários e entidades"
+        tecnologias: ["Elastic UEBA", "Exabeam"]
+        modelos: "50+ modelos de comportamento"
+
+    camada_visualizacao:
+      - nome: "Dashboards"
+        descricao: "Visualização em tempo real"
+        tecnologias: ["Kibana", "Grafana", "Power BI"]
+        dashboards: "30+ dashboards especializados"
+
+      - nome: "Alerting"
+        descricao: "Sistema de notificações"
+        tecnologias: ["ElastAlert", "Prometheus Alertmanager"]
+        canais: ["Slack", "Teams", "Email", "SMS", "PagerDuty"]
+
+    camada_resposta:
+      - nome: "IRP Automation"
+        descricao: "Automação de resposta a incidentes"
+        tecnologias: ["Python", "Ansible", "Terraform"]
+        integracoes: ["Firewalls", "EDR", "Cloud APIs"]
+
+      - nome: "Case Management"
+        descricao: "Gestão de casos e investigações"
+        tecnologias: ["TheHive", "Jira", "ServiceNow"]
+        workflows: "20+ fluxos de trabalho"
+
+  metricas_kpi:
+    - nome: "MTTD"
+      descricao: "Mean Time to Detect"
+      alvo: "< 10 minutos"
+      atual: "15 minutos"
+
+    - nome: "MTTR"
+      descricao: "Mean Time to Respond"
+      alvo: "< 30 minutos"
+      atual: "45 minutos"
+
+    - nome: "Alert Accuracy"
+      descricao: "Precisão de alertas"
+      alvo: "> 95%"
+      atual: "92%"
+
+    - nome: "Incident Volume"
+      descricao: "Volume de incidentes"
+      alvo: "< 50/dia"
+      atual: "35/dia"
+
+    - nome: "Automation Rate"
+      descricao: "Taxa de automação"
+      alvo: "> 70%"
+      atual: "65%"
+
+  equipe:
+    - funcao: "Analista SOC N1"
+      quantidade: 5
+      responsabilidades:
+        - "Triagem inicial de alertas"
+        - "Resposta a incidentes simples"
+        - "Criação de tickets"
+
+    - funcao: "Analista SOC N2"
+      quantidade: 3
+      responsabilidades:
+        - "Investigação avançada"
+        - "Análise forense básica"
+        - "Suporte a N1"
+
+    - funcao: "Analista de Threat Hunting"
+      quantidade: 2
+      responsabilidades:
+        - "Caça ativa a ameaças"
+        - "Desenvolvimento de detecções"
+        - "Análise de malware"
+
+    - funcao: "Engenheiro SOC"
+      quantidade: 2
+      responsabilidades:
+        - "Manutenção do SIEM/SOAR"
+        - "Desenvolvimento de automações"
+        - "Integrações"
+
+    - funcao: "Líder SOC"
+      quantidade: 1
+      responsabilidades:
+        - "Gestão da equipe"
+        - "Relatórios executivos"
+        - "Melhoria contínua"
+
+  turnos_operacao:
+    - turno: "Matutino"
+      horario: "07:00 - 15:00"
+      equipe: "2x N1, 1x N2, 1x Engenheiro"
+
+    - turno: "Vespertino"
+      horario: "15:00 - 23:00"
+      equipe: "2x N1, 1x N2"
+
+    - turno: "Noturno"
+      horario: "23:00 - 07:00"
+      equipe: "1x N1 (remoto), 1x N2 (sobreaviso)"
+
+    - turno: "Fim de Semana"
+      horario: "24/7"
+      equipe: "1x N1 (remoto), equipe completa (sobreaviso)"

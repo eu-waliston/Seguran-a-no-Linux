@@ -1,0 +1,96 @@
+# modulo7/documentacao/plano-resposta-incidentes.yaml
+---
+plano_resposta_incidentes:
+  versao: "2.0"
+  data_atualizacao: "2024-01-15"
+  equipe_resposta:
+    lider: "CSIRT@empresa.com"
+    membros:
+      - "soc@empresa.com"
+      - "forense@empresa.com"
+      - "juridico@empresa.com"
+      - "comunicacao@empresa.com"
+
+  contatos_emergencia:
+    abin: "+55-61-XXXX-XXXX"
+    policia_cibernetica: "190"
+    cert.br: "+55-11-5509-3511"
+
+  classificacao_incidentes:
+    nivel_1_critico:
+      criterios:
+        - "Vazamento massivo de dados"
+        - "Ransomware em servidores críticos"
+        - "Ataque DDoS com downtime > 4h"
+      tempo_resposta: "15 minutos"
+      equipe: "Equipe completa"
+
+    nivel_2_alto:
+      criterios:
+        - "Comprometimento de servidor"
+        - "Vazamento de dados confidenciais"
+        - "Ataque phishing direcionado"
+      tempo_resposta: "1 hora"
+      equipe: "SOC + Forense"
+
+    nivel_3_medio:
+      criterios:
+        - "Malware em workstation"
+        - "Tentativa de acesso não autorizado"
+        - "Vulnerabilidade crítica exposta"
+      tempo_resposta: "4 horas"
+      equipe: "SOC"
+
+    nivel_4_baixo:
+      criterios:
+        - "Alerta falso positivo"
+        - "Vulnerabilidade de baixo risco"
+        - "Atividade suspeita investigada"
+      tempo_resposta: "24 horas"
+      equipe: "Analista SOC"
+
+  fluxo_resposta:
+    fases:
+      1: "Preparação"
+      2: "Identificação"
+      3: "Contenção"
+      4: "Erradicação"
+      5: "Recuperação"
+      6: "Lições Aprendidas"
+
+    gatilhos:
+      - "Alerta SIEM nível alto/crítico"
+      - "Notificação de funcionário"
+      - "Alerta de ferramenta de segurança"
+      - "Notificação externa (CERT, cliente)"
+
+    declaracao_incidente:
+      criterios:
+        - "2+ alertas correlacionados"
+        - "Evidência de comprometimento"
+        - "Impacto financeiro/operacional"
+      aprovador: "Líder CSIRT"
+
+  comunicacao:
+    interna:
+      nivel_1: "Diretoria imediatamente + reunião a cada 2h"
+      nivel_2: "Gerentes em 1h + atualizações a cada 4h"
+      nivel_3: "Equipe afetada em 4h + relatório diário"
+      nivel_4: "Relatório semanal"
+
+    externa:
+      clientes: "Em 72h se dados afetados (LGPD)"
+      autoridades: "Conforme exigência legal"
+      midia: "Apenas via comunicação corporativa"
+
+  preservacao_evidencias:
+    diretrizes:
+      - "Não desligar sistemas comprometidos"
+      - "Capturar memória antes de qualquer ação"
+      - "Documentar todas as ações com timestamps"
+      - "Manter cadeia de custódia"
+
+    retencao:
+      logs: "7 anos"
+      evidencias: "Permanente para casos criminais"
+      relatorios: "5 anos"

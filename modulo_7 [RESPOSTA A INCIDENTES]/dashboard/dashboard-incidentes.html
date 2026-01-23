@@ -1,0 +1,680 @@
+<!-- modulo7/dashboard/dashboard-incidentes.html -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Resposta a Incidentes</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 2px solid #3498db;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo h1 {
+            color: #3498db;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(52, 152, 219, 0.1);
+            padding: 10px 20px;
+            border-radius: 20px;
+            border: 1px solid #3498db;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #2ecc71;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #3498db;
+        }
+
+        .card-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .card-trend {
+            font-size: 14px;
+            padding: 5px 10px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+        .trend-up {
+            background: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+        }
+
+        .trend-down {
+            background: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+        }
+
+        .incidents-table {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 15px;
+            border-bottom: 2px solid rgba(52, 152, 219, 0.3);
+            color: #3498db;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .severity-critical {
+            color: #e74c3c;
+            font-weight: 600;
+        }
+
+        .severity-high {
+            color: #e67e22;
+            font-weight: 600;
+        }
+
+        .severity-medium {
+            color: #f1c40f;
+            font-weight: 600;
+        }
+
+        .severity-low {
+            color: #2ecc71;
+            font-weight: 600;
+        }
+
+        .btn-action {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 8px;
+            background: #3498db;
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .btn-action:hover {
+            background: #2980b9;
+        }
+
+        .btn-isolate {
+            background: #e74c3c;
+        }
+
+        .btn-isolate:hover {
+            background: #c0392b;
+        }
+
+        .timeline {
+            margin-top: 30px;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-left: 30px;
+            margin-bottom: 25px;
+            border-left: 2px solid #3498db;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: -8px;
+            top: 0;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #3498db;
+        }
+
+        .timeline-time {
+            font-size: 12px;
+            color: #95a5a6;
+            margin-bottom: 5px;
+        }
+
+        .timeline-event {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .timeline-desc {
+            font-size: 14px;
+            color: #bdc3c7;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #95a5a6;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .card {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <h1>🚨 CSIRT Dashboard</h1>
+            </div>
+            <div class="status-indicator">
+                <div class="status-dot"></div>
+                <span>Sistema Ativo - Monitorando em tempo real</span>
+            </div>
+        </header>
+
+        <div class="dashboard-grid">
+            <!-- Card 1: Incidentes Ativos -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Incidentes Ativos</div>
+                    <div class="card-trend trend-up">+2 hoje</div>
+                </div>
+                <div class="card-value" id="active-incidents">12</div>
+                <div class="card-subtitle">Sistemas em resposta</div>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-time">10:30 AM</div>
+                        <div class="timeline-event severity-critical">Ransomware detectado</div>
+                        <div class="timeline-desc">SRV-APP01 - Em contenção</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-time">09:15 AM</div>
+                        <div class="timeline-event severity-high">Ataque força bruta</div>
+                        <div class="timeline-desc">Firewall - 500+ tentativas</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 2: MTTR -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">MTTR Médio</div>
+                    <div class="card-trend trend-down">-15%</div>
+                </div>
+                <div class="card-value" id="mttr">2.4h</div>
+                <div class="card-subtitle">Tempo médio de resolução</div>
+                <canvas id="mttrChart" height="120"></canvas>
+            </div>
+
+            <!-- Card 3: Alertas por Severidade -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Alertas (24h)</div>
+                    <div class="card-trend trend-up">+8%</div>
+                </div>
+                <div class="card-value" id="total-alerts">147</div>
+                <div class="severity-breakdown">
+                    <div class="severity-item">
+                        <span class="severity-critical">● Crítico:</span>
+                        <span id="critical-count">3</span>
+                    </div>
+                    <div class="severity-item">
+                        <span class="severity-high">● Alto:</span>
+                        <span id="high-count">12</span>
+                    </div>
+                    <div class="severity-item">
+                        <span class="severity-medium">● Médio:</span>
+                        <span id="medium-count">45</span>
+                    </div>
+                    <div class="severity-item">
+                        <span class="severity-low">● Baixo:</span>
+                        <span id="low-count">87</span>
+                    </div>
+                </div>
+                <canvas id="severityChart" height="120"></canvas>
+            </div>
+
+            <!-- Card 4: Tipos de Ataque -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Top Ameaças</div>
+                </div>
+                <div class="threat-list">
+                    <div class="threat-item">
+                        <div class="threat-name">Phishing</div>
+                        <div class="threat-bar">
+                            <div class="bar-fill" style="width: 65%; background: #e74c3c;"></div>
+                        </div>
+                        <div class="threat-count">42%</div>
+                    </div>
+                    <div class="threat-item">
+                        <div class="threat-name">Ransomware</div>
+                        <div class="threat-bar">
+                            <div class="bar-fill" style="width: 45%; background: #e67e22;"></div>
+                        </div>
+                        <div class="threat-count">28%</div>
+                    </div>
+                    <div class="threat-item">
+                        <div class="threat-name">DDoS</div>
+                        <div class="threat-bar">
+                            <div class="bar-fill" style="width: 30%; background: #f1c40f;"></div>
+                        </div>
+                        <div class="threat-count">15%</div>
+                    </div>
+                    <div class="threat-item">
+                        <div class="threat-name">Insider</div>
+                        <div class="threat-bar">
+                            <div class="bar-fill" style="width: 20%; background: #2ecc71;"></div>
+                        </div>
+                        <div class="threat-count">10%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabela de Incidentes Ativos -->
+        <div class="incidents-table">
+            <h2>🎯 Incidentes Ativos - Ação Requerida</h2>
+            <table id="incidentsTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Tipo</th>
+                        <th>Severidade</th>
+                        <th>Sistema</th>
+                        <th>Status</th>
+                        <th>Detectado</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>INC-2024-001</td>
+                        <td>Ransomware</td>
+                        <td class="severity-critical">CRÍTICO</td>
+                        <td>SRV-FILE01</td>
+                        <td><span class="status-badge" style="color: #e74c3c;">● Em contenção</span></td>
+                        <td>10:30 AM</td>
+                        <td>
+                            <button class="btn-action btn-isolate" onclick="isolateSystem('SRV-FILE01')">Isolar</button>
+                            <button class="btn-action" onclick="viewDetails('INC-2024-001')">Detalhes</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>INC-2024-002</td>
+                        <td>Força Bruta SSH</td>
+                        <td class="severity-high">ALTO</td>
+                        <td>SRV-WEB01</td>
+                        <td><span class="status-badge" style="color: #f1c40f;">● Investigando</span></td>
+                        <td>09:45 AM</td>
+                        <td>
+                            <button class="btn-action" onclick="blockIP('192.168.1.100')">Bloquear IP</button>
+                            <button class="btn-action" onclick="viewDetails('INC-2024-002')">Detalhes</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>INC-2024-003</td>
+                        <td>Vazamento de Dados</td>
+                        <td class="severity-high">ALTO</td>
+                        <td>DB-PROD01</td>
+                        <td><span class="status-badge" style="color: #3498db;">● Contido</span></td>
+                        <td>08:15 AM</td>
+                        <td>
+                            <button class="btn-action" onclick="startForensics('DB-PROD01')">Forense</button>
+                            <button class="btn-action" onclick="viewDetails('INC-2024-003')">Detalhes</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Gráficos Adicionais -->
+        <div class="dashboard-grid" style="margin-top: 30px;">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Detecções por Hora</div>
+                </div>
+                <canvas id="detectionsChart" height="200"></canvas>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Sistemas Mais Afetados</div>
+                </div>
+                <canvas id="systemsChart" height="200"></canvas>
+            </div>
+        </div>
+
+        <footer>
+            <p>🚨 Centro de Operações de Segurança - CSIRT | Última atualização: <span id="lastUpdate">Carregando...</span></p>
+            <p>⚠️ Este dashboard é atualizado automaticamente a cada 60 segundos</p>
+        </footer>
+    </div>
+
+    <script>
+        // Configuração inicial dos gráficos
+        document.addEventListener('DOMContentLoaded', function() {
+            atualizarDashboard();
+            setInterval(atualizarDashboard, 60000); // Atualizar a cada minuto
+
+            // Gráfico de MTTR
+            const mttrCtx = document.getElementById('mttrChart').getContext('2d');
+            new Chart(mttrCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+                    datasets: [{
+                        label: 'MTTR (horas)',
+                        data: [4.2, 3.8, 3.2, 2.9, 2.6, 2.4],
+                        borderColor: '#3498db',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            // Gráfico de Severidade
+            const severityCtx = document.getElementById('severityChart').getContext('2d');
+            new Chart(severityCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Crítico', 'Alto', 'Médio', 'Baixo'],
+                    datasets: [{
+                        data: [3, 12, 45, 87],
+                        backgroundColor: ['#e74c3c', '#e67e22', '#f1c40f', '#2ecc71']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'bottom' } }
+                }
+            });
+
+            // Gráfico de Detecções por Hora
+            const detectionsCtx = document.getElementById('detectionsChart').getContext('2d');
+            new Chart(detectionsCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['00h', '04h', '08h', '12h', '16h', '20h'],
+                    datasets: [{
+                        label: 'Detecções',
+                        data: [5, 8, 45, 62, 38, 22],
+                        backgroundColor: 'rgba(52, 152, 219, 0.8)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            // Gráfico de Sistemas Afetados
+            const systemsCtx = document.getElementById('systemsChart').getContext('2d');
+            new Chart(systemsCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['Web', 'DB', 'File', 'Auth', 'App', 'Mail'],
+                    datasets: [{
+                        label: 'Incidentes',
+                        data: [65, 59, 90, 81, 56, 55],
+                        backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                        borderColor: '#3498db'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(255,255,255,0.1)' },
+                            grid: { color: 'rgba(255,255,255,0.1)' }
+                        }
+                    }
+                }
+            });
+        });
+
+        // Funções de ação
+        function isolateSystem(system) {
+            if (confirm(`Tem certeza que deseja isolar o sistema ${system}?`)) {
+                axios.post('/api/isolate', { system: system })
+                    .then(response => {
+                        alert(`Sistema ${system} isolado com sucesso!`);
+                        atualizarDashboard();
+                    })
+                    .catch(error => {
+                        alert('Erro ao isolar sistema: ' + error.message);
+                    });
+            }
+        }
+
+        function blockIP(ip) {
+            if (confirm(`Bloquear IP ${ip} no firewall?`)) {
+                axios.post('/api/block-ip', { ip: ip })
+                    .then(response => {
+                        alert(`IP ${ip} bloqueado com sucesso!`);
+                        atualizarDashboard();
+                    })
+                    .catch(error => {
+                        alert('Erro ao bloquear IP: ' + error.message);
+                    });
+            }
+        }
+
+        function startForensics(system) {
+            if (confirm(`Iniciar coleta forense no sistema ${system}?`)) {
+                axios.post('/api/forensics', { system: system })
+                    .then(response => {
+                        alert(`Coleta forense iniciada em ${system}`);
+                        window.open(`/forensics/${system}`, '_blank');
+                    })
+                    .catch(error => {
+                        alert('Erro ao iniciar forense: ' + error.message);
+                    });
+            }
+        }
+
+        function viewDetails(incidentId) {
+            window.open(`/incidents/${incidentId}`, '_blank');
+        }
+
+        // Atualizar dashboard com dados em tempo real
+        async function atualizarDashboard() {
+            try {
+                const response = await axios.get('/api/dashboard-data');
+                const data = response.data;
+
+                // Atualizar valores
+                document.getElementById('active-incidents').textContent = data.activeIncidents;
+                document.getElementById('mttr').textContent = data.mttr + 'h';
+                document.getElementById('total-alerts').textContent = data.totalAlerts;
+                document.getElementById('critical-count').textContent = data.severity.critical;
+                document.getElementById('high-count').textContent = data.severity.high;
+                document.getElementById('medium-count').textContent = data.severity.medium;
+                document.getElementById('low-count').textContent = data.severity.low;
+                document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+
+                // Atualizar tabela
+                atualizarTabelaIncidentes(data.incidents);
+
+            } catch (error) {
+                console.error('Erro ao atualizar dashboard:', error);
+            }
+        }
+
+        function atualizarTabelaIncidentes(incidents) {
+            const tbody = document.querySelector('#incidentsTable tbody');
+            tbody.innerHTML = '';
+
+            incidents.forEach(incident => {
+                const row = document.createElement('tr');
+
+                // Mapear cor do status
+                let statusColor = '#3498db'; // padrão azul
+                if (incident.status === 'em_contencao') statusColor = '#e74c3c';
+                if (incident.status === 'investigando') statusColor = '#f1c40f';
+                if (incident.status === 'contido') statusColor = '#2ecc71';
+
+                row.innerHTML = `
+                    <td>${incident.id}</td>
+                    <td>${incident.type}</td>
+                    <td class="severity-${incident.severity}">${incident.severity.toUpperCase()}</td>
+                    <td>${incident.system}</td>
+                    <td><span class="status-badge" style="color: ${statusColor};">● ${incident.status}</span></td>
+                    <td>${incident.detected}</td>
+                    <td>
+                        <button class="btn-action ${incident.severity === 'critical' ? 'btn-isolate' : ''}"
+                                onclick="isolateSystem('${incident.system}')">
+                            ${incident.severity === 'critical' ? 'Isolar' : 'Ações'}
+                        </button>
+                        <button class="btn-action" onclick="viewDetails('${incident.id}')">Detalhes</button>
+                    </td>
+                `;
+
+                tbody.appendChild(row);
+            });
+        }
+
+        // Simulação de dados (em produção, viria da API)
+        function getMockData() {
+            return {
+                activeIncidents: Math.floor(Math.random() * 5) + 10,
+                mttr: (Math.random() * 2 + 2).toFixed(1),
+                totalAlerts: Math.floor(Math.random() * 50) + 100,
+                severity: {
+                    critical: Math.floor(Math.random() * 5) + 1,
+                    high: Math.floor(Math.random() * 10) + 8,
+                    medium: Math.floor(Math.random() * 20) + 35,
+                    low: Math.floor(Math.random() * 30) + 70
+                },
+                incidents: [
+                    {
+                        id: 'INC-2024-001',
+                        type: 'Ransomware',
+                        severity: 'critical',
+                        system: 'SRV-FILE01',
+                        status: 'em_contencao',
+                        detected: '10:30 AM'
+                    },
+                    {
+                        id: 'INC-2024-002',
+                        type: 'Força Bruta',
+                        severity: 'high',
+                        system: 'SRV-WEB01',
+                        status: 'investigando',
+                        detected: '09:45 AM'
+                    }
+                ]
+            };
+        }
+    </script>
+</body>
+</html>
